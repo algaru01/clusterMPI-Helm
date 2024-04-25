@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-configmap
+data:
+    hostfile: |
+    {{- range $i := until (int (include "mi-mpi.numberReplicas" .)) }}
+        mpi-worker-{{ $i }}.mpi-workers-service.default.svc.cluster.local
+    {{- end }}

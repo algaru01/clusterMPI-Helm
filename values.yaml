@@ -1,0 +1,14 @@
+namespace: default
+
+appName:  mpi-app
+
+image:
+  name: agalrui/mi-sshd
+  tag: latest
+
+replicaCount: ""
+
+nfs:
+  server_ip: 192.168.1.147
+  path: /mnt/nfs_share/
+  subpath: mpi

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-worker
+  namespace: {{ .Values.namespace}}
+spec:
+  serviceName: {{ .Release.Name }}-workers-service
+  selector:
+    matchLabels:
+      app: {{ .Values.appName }}
+  replicas: {{ include "mi-mpi.numberReplicas" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.appName }}
+        type: worker
+    spec:
+      containers:
+      - name: mpiwn
+        image: "{{ .Values.image.name}}:{{ .Values.image.tag }}"
+        command: [ "/usr/sbin/sshd", "-D"  ]
+
+        volumeMounts:
+          - name: nfs
+            subPath: {{ .Values.nfs.subpath}}
+            mountPath: "/nfs"
+      volumes:
+        - name: nfs
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-nfs-pvc
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-workers-service
+  namespace: {{ .Values.namespace}}
+spec:
+  ports:
+  - port: 22
+    targetPort: 22
+  selector:
+    app: {{ .Values.appName }}
+    type: worker
